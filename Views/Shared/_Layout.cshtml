@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8"/><meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>@ViewData["Title"] · Controle de horas</title>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;500;600;700;800;900&display=swap" rel="stylesheet"/>
+<link href="~/bibliotecas/bootstrap.min.css" rel="stylesheet"/>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" rel="stylesheet"/>
+<link href="~/css/referencia.css" rel="stylesheet"/><link href="~/css/horas.css" rel="stylesheet" asp-append-version="true"/>
+</head>
+<body class="app-body">
+<aside class="sidebar" id="menuLateral">
+<a class="sidebar-brand text-decoration-none" href="/"><span class="logo-mark"><i class="fa-solid fa-clock"></i></span><span class="brand-text"><strong>Controle de horas</strong><small>Seu tempo tem valor.</small></span></a>
+<ul class="sidebar-menu">
+@{
+ var atual = ViewContext.RouteData.Values["controller"]?.ToString();
+ var itens = new[] { ("Visão geral", "Dashboard", "Dashboard", "fa-house", "/Dashboard"), ("Trabalho", "Demandas", "Demandas", "fa-list-check", "/Demandas"), ("", "Apontamentos", "Apontamentos", "fa-clock", "/Apontamentos"), ("", "Histórico", "Historico", "fa-clock-rotate-left", "/Apontamentos/Historico"), ("Financeiro", "Valores", "RelatoriosValores", "fa-wallet", "/Relatorios/Valores"), ("", "Pagamentos", "Pagamentos", "fa-money-bill-transfer", "/Pagamentos"), ("Consultas", "Relatórios", "Relatorios", "fa-chart-column", "/Relatorios"), ("Cadastros", "Usuários", "Usuarios", "fa-users", "/Usuarios"), ("Preferências", "Configurações", "Configuracoes", "fa-gear", "/Configuracoes") };
+}
+@foreach (var item in itens) {
+ if (item.Item3 == "Usuarios" && !User.IsInRole("Administrador")) { continue; }
+ if (item.Item1 != "") { <li class="menu-label">@item.Item1</li> }
+ <li><a href="@item.Item5" title="@item.Item2" class="@(Context.Request.Path.Value?.TrimEnd('/') == item.Item5 || (item.Item3 == "Dashboard" && Context.Request.Path == "/") ? "active" : "")"><i class="fa-solid @item.Item4"></i><span class="menu-texto">@item.Item2</span></a></li>
+}
+</ul>
+<div class="sidebar-footer brand-text"><span class="ponto"></span> Espaço de trabalho pessoal<small>Organize. Concentre-se. Evolua.</small></div>
+</aside>
+<button class="sidebar-backdrop" id="fundoMenu" aria-label="Fechar menu"></button>
+<div class="app-content">
+<header class="app-header"><div class="d-flex align-items-center gap-3"><button class="btn btn-outline-secondary" id="botaoSidebar" aria-label="Recolher menu" aria-expanded="true"><i class="fa-solid fa-bars"></i></button><div><small class="text-muted">Meu espaço /</small> <strong>@ViewData["Title"]</strong></div></div><div class="d-flex align-items-center gap-3"><span class="avatar">@(User.Identity?.Name?.FirstOrDefault())</span><span class="nome-usuario">@User.Identity?.Name</span><form asp-controller="Autenticacao" asp-action="Sair" method="post"><button class="btn btn-link text-secondary" title="Sair" aria-label="Sair"><i class="fa-solid fa-arrow-right-from-bracket"></i></button></form></div></header>
+<main class="app-main" id="app-page" tabindex="-1">
+@if (TempData["Sucesso"] is string sucesso) { <div class="toast show aviso-sucesso" role="status"><div class="toast-body"><i class="fa-solid fa-circle-check me-2"></i>@sucesso<button type="button" class="btn-close float-end" data-bs-dismiss="toast" aria-label="Fechar"></button></div></div> }
+@if (TempData["Erro"] is string erro) { <div class="alert alert-danger" role="alert">@erro</div> }
+@RenderBody()
+<footer class="rodape">Controle de horas <span>Um registro de cada conquista.</span></footer>
+</main>
+</div>
+<script src="~/bibliotecas/bootstrap.bundle.min.js"></script><script src="~/js/horas.js" asp-append-version="true"></script>
+<script src="~/js/navigation.js" asp-append-version="true"></script>
+</body></html>

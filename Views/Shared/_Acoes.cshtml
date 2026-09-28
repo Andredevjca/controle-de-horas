@@ -1,0 +1,15 @@
+﻿@model Demanda
+@{
+ var retorno = Context.Request.Path + Context.Request.QueryString;
+}
+<div class="acoes-trabalho">
+@if (Model.Status is "Pendente" or "Pausada") {
+<form asp-controller="Demandas" asp-action="Acao" method="post"><input type="hidden" name="id" value="@Model.Id"/><input type="hidden" name="acao" value="iniciar"/><input type="hidden" name="retorno" value="@retorno"/><button class="btn btn-primary"><i class="fa-solid fa-play me-2"></i>@(Model.Status == "Pausada" ? "Continuar" : "Iniciar trabalho")</button></form>
+}
+@if (Model.Status == "Em andamento") {
+<form asp-controller="Demandas" asp-action="Acao" method="post"><input type="hidden" name="id" value="@Model.Id"/><input type="hidden" name="acao" value="pausar"/><input type="hidden" name="retorno" value="@retorno"/><button class="btn btn-primary"><i class="fa-solid fa-pause me-2"></i>Pausar</button></form>
+}
+@if (Model.Status is not ("Concluída" or "Cancelada")) {
+<form asp-controller="Demandas" asp-action="Acao" method="post" data-confirmar="Finalizar esta demanda e encerrar o período em andamento?"><input type="hidden" name="id" value="@Model.Id"/><input type="hidden" name="acao" value="finalizar"/><input type="hidden" name="retorno" value="@retorno"/><button class="btn btn-outline-secondary"><i class="fa-solid fa-check me-2"></i>Finalizar trabalho</button></form>
+}
+</div>

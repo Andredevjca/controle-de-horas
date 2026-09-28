@@ -1,0 +1,60 @@
+# Compilacao, restauracao e publicacao do .NET
+[Bb]in/
+[Oo]bj/
+/artifacts/
+/publish/
+/publicacao/
+*.nupkg
+*.snupkg
+
+# Configuracoes e caches locais das IDEs
+.vs/
+.idea/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+*.sln.iml
+*.rsuser
+
+# Perfis de publicacao podem conter credenciais locais
+Properties/PublishProfiles/
+
+# Resultados de testes e cobertura
+TestResults/
+coverage/
+*.trx
+*.coverage
+*.coveragexml
+
+# Logs e arquivos temporarios
+logs/
+*.log
+*.tmp
+*.temp
+*.bak
+*.swp
+*.swo
+~$*
+
+# Dados locais: MySQL, credenciais, fotos, chaves e arquivos de trabalho
+/Dados/
+
+# Dependencias e caches de ferramentas frontend
+node_modules/
+.npm/
+
+.env
+.env.*
+!.env.example
+!.env.sample
+appsettings.Local.json
+appsettings.*.Local.json
+
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+
+# Banco local legado (nao versionar dados)
+/.dados-teste/

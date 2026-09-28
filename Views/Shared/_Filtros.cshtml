@@ -1,0 +1,10 @@
+﻿@model Painel
+<form method="get" class="filtros painel mb-4">
+<div><label for="Inicio">Data inicial</label><input class="form-control" type="date" id="Inicio" name="Inicio" value="@Model.Filtro.Inicio.ToString("yyyy-MM-dd")" required/></div>
+<div><label for="Fim">Data final</label><input class="form-control" type="date" id="Fim" name="Fim" value="@Model.Filtro.Fim.ToString("yyyy-MM-dd")" required/></div>
+@if (ViewData["FiltroDemanda"] as bool? == true) {
+<div><label for="DemandaId">Demanda</label><select class="form-select" name="DemandaId" id="DemandaId"><option value="">Todas as demandas</option>@foreach(var demanda in Model.Demandas) { <option value="@demanda.Id" selected="@(demanda.Id == Model.Filtro.DemandaId)">@demanda.Codigo · @demanda.Titulo</option> }</select></div>
+<div><label for="Status">Status</label><select class="form-select" name="Status" id="Status"><option value="">Todos</option>@foreach(var status in new[]{"Pendente","Em andamento","Pausada","Concluída","Cancelada"}) { <option selected="@(status == Model.Filtro.Status)">@status</option> }</select></div>
+}
+<button class="btn btn-primary"><i class="fa-solid fa-filter me-2"></i>Filtrar</button>
+</form>
