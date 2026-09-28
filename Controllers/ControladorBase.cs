@@ -1,15 +1,6 @@
 using System.Security.Claims;
-using ControleHoras.Models;
-using ControleHoras.Interfaces.Repositories;
-using ControleHoras.Interfaces.Services;
-using ControleHoras.Services;
-using Microsoft.AspNetCore.Authentication;
-using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.RateLimiting;
-using ClosedXML.Excel;
 
 namespace ControleHoras.Controllers;
 [Authorize]
@@ -25,4 +16,3 @@ public abstract class ControladorBase : Controller
         return LocalRedirect(destino);
     }
 }
-

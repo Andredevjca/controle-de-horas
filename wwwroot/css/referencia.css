@@ -112,7 +112,7 @@ html, body {
 .logo-mark {
     width: 32px;
     height: 32px;
-    border-radius: 10px;
+    border-radius: 6px;
     background: linear-gradient(135deg, #294b8f, #4268b0);
     display: grid;
     place-items: center;
@@ -182,7 +182,7 @@ body.sidebar-collapsed .sidebar-brand .marca-recolhida {
         .sidebar-menu::-webkit-scrollbar-thumb {
             background: #344b6b;
             border: 2px solid var(--sidebar-bg);
-            border-radius: 8px;
+            border-radius: 6px;
         }
 
             .sidebar-menu::-webkit-scrollbar-thumb:hover {

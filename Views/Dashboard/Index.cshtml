@@ -1,9 +1,9 @@
 ﻿@model Painel
-@{ ViewData["Title"] = "Dashboard"; var hora = ControleServico.AgoraLocal.Hour; }
+@{ ViewData["Title"] = "Dashboard"; var hora = Horario.AgoraLocal.Hour; }
 <div class="titulo-pagina"><div><div class="sobretitulo">SEU TEMPO, BEM INVESTIDO</div><h1>Olá, @User.Identity?.Name<span class="text-primary">.</span></h1><p>@(hora < 12 ? "Bom dia" : hora < 18 ? "Boa tarde" : "Boa noite"). Tudo pronto para o próximo passo?</p></div><a class="btn btn-primary" asp-controller="Demandas" asp-action="Editar"><i class="fa-solid fa-plus me-2"></i>Nova demanda</a></div>
 <div class="indicadores">
 <div class="indicador"><span>Hoje <i class="fa-regular fa-clock"></i></span><strong>@Formato.Horas(Model.SegundosHoje)</strong><small>Tempo efetivamente trabalhado</small></div>
-<div class="indicador"><span>Este mês <i class="fa-regular fa-calendar"></i></span><strong>@Formato.Horas(Model.SegundosMes)</strong><small>@ControleServico.AgoraLocal.ToString("MMMM 'de' yyyy")</small></div>
+<div class="indicador"><span>Este mês <i class="fa-regular fa-calendar"></i></span><strong>@Formato.Horas(Model.SegundosMes)</strong><small>@Horario.AgoraLocal.ToString("MMMM 'de' yyyy")</small></div>
 <div class="indicador"><span>Valor/hora <i class="fa-solid fa-coins"></i></span><strong class="@(Model.ValorHora == null ? "nao-definido" : "")">@(Model.ValorHora.HasValue ? Formato.Dinheiro(Model.ValorHora) : "Não definido")</strong><a asp-controller="Configuracoes" asp-action="Index">Configurar valor <i class="fa-solid fa-arrow-right ms-1"></i></a></div>
 <div class="indicador"><span>A receber <i class="fa-solid fa-wallet"></i></span><strong>@Formato.Dinheiro(Model.SaldoGeral)</strong><small>Saldo de todo o histórico</small></div>
 </div>

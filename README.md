@@ -12,15 +12,22 @@ O login consulta a tabela `usuarios` e valida a senha com hash. Nao existe usuar
 
 O script nao inicia nem configura bancos demonstrativos. A pasta legada `.dados-teste/mysql` foi excluida do versionamento, mas pode conter registros reais e nao deve ser apagada sem identificar seu conteudo.
 
-## Organizacao
+## Organiza??o do c?digo
 
-- `Interfaces/Repositories` e `Interfaces/Services`: contratos usados pelos controladores.
-- `Dependecias/InjecaoDependencias.cs`: registros das dependencias da aplicacao.
-- `Repositories`: consultas Dapper; `Services`: regras de negocio.
-- `wwwroot/js/navigation.js`: navegacao por fetch, seguindo o padrao de jca-inventario. Mantem menu e cabecalho, atualiza conteudo, titulo, item ativo e historico. Formularios mantem antiforgery e confirmacoes; POST nao e repetido automaticamente em falhas. Login, logout, download e impressao usam o fluxo proprio.
-- `wwwroot/js/horas.js`: inicializacao dos cronometros apos cada navegacao, descartando intervalos anteriores.
+Cada ?rea possui seu controller, servi?o e interface de servi?o: **Autentica??o, Dashboard, Demandas, Apontamentos, Pagamentos, Relat?rios, Configura??es e Usu?rios**.
 
-Layout, estilos e telas preservados. O projeto de referencia nao foi alterado.
+- `Controllers/<?rea>`: recebe a requisi??o, trata o resultado HTTP e chama apenas o servi?o da ?rea.
+- `Services/<?rea>` e `Interfaces/Services`: regras e contratos espec?ficos de cada funcionalidade. A exporta??o Excel fica em `RelatoriosServico`; autentica??o e altera??o de senha tamb?m s?o tratadas nos servi?os.
+- `Repositories/<?rea>` e `Interfaces/Repositories`: consultas Dapper separadas em Demandas (incluindo projetos), Apontamentos, Pagamentos, Configura??es, Usu?rios e Hist?rico.
+- `Services/Painel`: composi??o das consultas utilizadas pelas telas. Dashboard e Relat?rios reutilizam os reposit?rios das entidades, sem duplicar SQL ou criar reposit?rios vazios por tela. Autentica??o reutiliza o reposit?rio de Usu?rios.
+- `Services/Compartilhado`: hor?rio de Bras?lia, valida??es e recorte dos intervalos por dia.
+- `Data/SessaoBanco.cs` e `IUnidadeTrabalho`: conex?o e transa??o compartilhadas entre os reposit?rios na mesma requisi??o. Altera??es de demanda, intervalos e auditoria continuam at?micas, com bloqueio por usu?rio.
+- `Dependecias/InjecaoDependencias.cs`: registro de servi?os, reposit?rios e sess?o com escopo por requisi??o.
+- `Models/<?rea>`: uma classe por arquivo, organizada em Usu?rios, Demandas, Projetos, Apontamentos, Pagamentos, Hist?rico, Relat?rios e Painel. `Models/Compartilhado` re?ne o filtro de per?odo e a formata??o. O namespace `ControleHoras.Models` ? mantido para uso comum nas telas e servi?os.
+- `Views` e `wwwroot`: telas Razor e arquivos est?ticos.
+- `wwwroot/js/navigation.js`: navega??o por fetch; `horas.js`: inicializa??o dos cron?metros ap?s cada navega??o.
+
+Para manter uma funcionalidade, comece pelo controller da ?rea e siga sua interface de servi?o at? o reposit?rio respons?vel pelos dados.
 
 ## Funcionalidades
 
@@ -66,4 +73,13 @@ dotnet run --no-build --urls http://localhost:5198
 powershell -NoProfile -ExecutionPolicy Bypass -File Tests/fluxo-http.ps1 -UsuarioAdministrador <login-do-banco-de-testes> -SenhaAdministrador <senha>
 ```
 
-A validação HTTP cobre as telas, cadastro e login de usuário, demanda, cronômetro, lançamento manual, tarifa brasileira, pagamento, total/saldo, XLSX, impressão/PDF, acesso administrativo e CSRF. O navegador automatizado não estava disponível nesta sessão; a interface foi verificada por compilação Razor e respostas HTTP, sem captura visual.
+A validação HTTP cobre as telas, cadastro e login de usuário, demanda, cronômetro, lançamento manual, tarifa brasileira, pagamento, total/saldo, XLSX, impressão/PDF, acesso administrativo e CSRF. O navegador automatizado não estava disponível nesta sessão; a interface foi verificada por compilação Razor e respostas HTTP, sem captura visual.## Valida??o
+
+```powershell
+dotnet build
+dotnet run --project Tests/ControleHoras.Testes.csproj
+```
+
+Os testes locais n?o acessam nem alteram o banco. Verificam a resolu??o dos servi?os, o escopo da sess?o compartilhada, o recorte ? meia-noite, os limites de per?odo, a tarifa opcional, os saldos, a compet?ncia dos pagamentos e a exporta??o Excel. As consultas do painel usam substitutos dos reposit?rios nesses testes.
+
+A persist?ncia, o rollback e a concorr?ncia precisam de valida??o de integra??o em um banco MySQL dedicado; n?o s?o cobertos por esses testes locais.

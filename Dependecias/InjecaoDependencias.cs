@@ -15,8 +15,23 @@ public static class InjecaoDependencias
         Dapper.DefaultTypeMap.MatchNamesWithUnderscores = true;
         services.AddSingleton<IPasswordHasher<Usuario>, PasswordHasher<Usuario>>();
         services.AddSingleton<BancoDados>();
-        services.AddScoped<IControleRepositorio, Repositorio>();
-        services.AddScoped<IControleServico, ControleServico>();
+        services.AddScoped<SessaoBanco>();
+        services.AddScoped<IUnidadeTrabalho>(provider => provider.GetRequiredService<SessaoBanco>());
+        services.AddScoped<IUsuariosRepositorio, UsuariosRepositorio>();
+        services.AddScoped<IDemandasRepositorio, DemandasRepositorio>();
+        services.AddScoped<IApontamentosRepositorio, ApontamentosRepositorio>();
+        services.AddScoped<IConfiguracoesRepositorio, ConfiguracoesRepositorio>();
+        services.AddScoped<IPagamentosRepositorio, PagamentosRepositorio>();
+        services.AddScoped<IHistoricoRepositorio, HistoricoRepositorio>();
+        services.AddScoped<IPainelServico, PainelServico>();
+        services.AddScoped<IDemandasServico, DemandasServico>();
+        services.AddScoped<IApontamentosServico, ApontamentosServico>();
+        services.AddScoped<IConfiguracoesServico, ConfiguracoesServico>();
+        services.AddScoped<IPagamentosServico, PagamentosServico>();
+        services.AddScoped<IUsuariosServico, UsuariosServico>();
+        services.AddScoped<IDashboardServico, DashboardServico>();
+        services.AddScoped<IRelatoriosServico, RelatoriosServico>();
+        services.AddScoped<IAutenticacaoServico, AutenticacaoServico>();
         return services;
     }
 }

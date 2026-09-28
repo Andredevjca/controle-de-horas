@@ -5,5 +5,5 @@
 <partial name="_Horas" model="Model"/>
 <p class="text-muted mt-3">Valor/hora: @(Model.ValorHora.HasValue ? Formato.Dinheiro(Model.ValorHora) : "Não definido") · Horário de Brasília. Pausas não entram no total.</p>
 <details class="painel mt-4"><summary class="fw-bold">Registro de alterações · últimas 100 atividades</summary>
-@foreach(ControleHoras.Models.RegistroHistorico registro in ViewBag.Historico){<div class="evento"><span>@ControleServico.Local(registro.Data).ToString("dd/MM/yyyy HH:mm:ss")</span><strong>@registro.Acao</strong><small>@registro.Detalhes</small>@if(registro.DemandaId.HasValue){<a asp-controller="Demandas" asp-action="Detalhes" asp-route-id="@registro.DemandaId">Abrir demanda</a>}</div>}
+@foreach(ControleHoras.Models.RegistroHistorico registro in ViewBag.Historico){<div class="evento"><span>@Horario.Local(registro.Data).ToString("dd/MM/yyyy HH:mm:ss")</span><strong>@registro.Acao</strong><small>@registro.Detalhes</small>@if(registro.DemandaId.HasValue){<a asp-controller="Demandas" asp-action="Detalhes" asp-route-id="@registro.DemandaId">Abrir demanda</a>}</div>}
 </details>

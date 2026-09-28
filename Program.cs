@@ -1,7 +1,7 @@
 using System.Globalization;
 using ControleHoras.Data;
 using ControleHoras.Models;
-using ControleHoras.Interfaces.Repositories;
+using ControleHoras.Interfaces.Services;
 using ControleHoras.Dependecias;
 using ControleHoras.Services;
 using Microsoft.AspNetCore.Authentication.Cookies;
@@ -19,7 +19,7 @@ construtor.Services.AddAuthentication(CookieAuthenticationDefaults.Authenticatio
     opcoes.Cookie.HttpOnly = true;
     opcoes.Cookie.SameSite = SameSiteMode.Lax;
     opcoes.Events.OnValidatePrincipal = async contexto => {
-        var repositorio = contexto.HttpContext.RequestServices.GetRequiredService<IControleRepositorio>();
+        var repositorio = contexto.HttpContext.RequestServices.GetRequiredService<IAutenticacaoServico>();
         var identificador = contexto.Principal?.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
         var usuario = int.TryParse(identificador, out var id) ? await repositorio.ObterUsuarioAsync(id) : null;
         if (usuario is null || !usuario.Ativo || usuario.VersaoSessao.ToString() != contexto.Principal?.FindFirst("versao")?.Value)
