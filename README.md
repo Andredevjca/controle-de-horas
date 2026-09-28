@@ -1,4 +1,4 @@
-﻿# Controle de horas
+# Controle de horas
 
 Aplicação ASP.NET Core MVC (.NET 10), Dapper e MySQL. Interface em português, com Bootstrap 5, Font Awesome e Nunito, inspirada no projeto `C:\jca-inventario`: sidebar azul-escuro, cabeçalho compacto, fundo claro e tabelas discretas. Sem Entity Framework, jQuery ou frameworks JavaScript.
 
@@ -54,32 +54,8 @@ A tarifa atual vale para todas as horas históricas. Pagamentos são lançados e
 
 Os estilos de referência foram copiados para `wwwroot/css/referencia.css` e adaptados em `horas.css`. O projeto `jca-inventario` não foi alterado. Nunito e Font Awesome são carregados por CDN; o restante da interface e o Bootstrap são locais.
 
-## Validação
+## Compilar e abrir no Visual Studio
 
-```powershell
-dotnet build
-dotnet run --project Tests/ControleHoras.Testes.csproj
-```
+Abra o arquivo ControleHoras.slnx no Visual Studio. A solucao contem apenas o projeto da aplicacao.
 
-Os testes de integração usam MySQL real em `127.0.0.1:3307` e banco `controle_horas_testes`. Para outra conexão, defina `CONEXAO_TESTES`; o nome do banco obrigatoriamente deve terminar em `_testes`. Cada execução cria um usuário isolado e preserva os dados para inspeção. Incluem 20 verificações de hash, inicializacao sem usuario padrao, meia-noite, tarifa opcional e retroativa, pagamento parcial, isolamento, sobreposição, concorrência, persistência do cronômetro, pausa/retomada, finalização, inativação e auditoria.
-
-
-O fluxo HTTP pode ser repetido em uma segunda instância, apontada para o banco de testes:
-
-```powershell
-$env:ConnectionStrings__BancoDados='Server=127.0.0.1;Port=3307;Database=controle_horas_testes;User=root;Password=;'
-dotnet run --no-build --urls http://localhost:5198
-# Em outro terminal:
-powershell -NoProfile -ExecutionPolicy Bypass -File Tests/fluxo-http.ps1 -UsuarioAdministrador <login-do-banco-de-testes> -SenhaAdministrador <senha>
-```
-
-A validação HTTP cobre as telas, cadastro e login de usuário, demanda, cronômetro, lançamento manual, tarifa brasileira, pagamento, total/saldo, XLSX, impressão/PDF, acesso administrativo e CSRF. O navegador automatizado não estava disponível nesta sessão; a interface foi verificada por compilação Razor e respostas HTTP, sem captura visual.## Valida??o
-
-```powershell
-dotnet build
-dotnet run --project Tests/ControleHoras.Testes.csproj
-```
-
-Os testes locais n?o acessam nem alteram o banco. Verificam a resolu??o dos servi?os, o escopo da sess?o compartilhada, o recorte ? meia-noite, os limites de per?odo, a tarifa opcional, os saldos, a compet?ncia dos pagamentos e a exporta??o Excel. As consultas do painel usam substitutos dos reposit?rios nesses testes.
-
-A persist?ncia, o rollback e a concorr?ncia precisam de valida??o de integra??o em um banco MySQL dedicado; n?o s?o cobertos por esses testes locais.
+Para compilar pelo terminal: dotnet build ControleHoras.slnx
