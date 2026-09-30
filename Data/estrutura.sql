@@ -30,6 +30,7 @@ CREATE TABLE IF NOT EXISTS pausas_apontamentos (
  FOREIGN KEY(apontamento_id) REFERENCES apontamentos(id)
 ) ENGINE=InnoDB;
 CREATE TABLE IF NOT EXISTS pagamentos (
+ demanda_id INT NULL, CONSTRAINT fk_pagamentos_demanda FOREIGN KEY(demanda_id) REFERENCES demandas(id),
  id INT AUTO_INCREMENT PRIMARY KEY, usuario_id INT NOT NULL, data_pagamento DATETIME NOT NULL,
  periodo_inicio DATETIME NOT NULL, periodo_fim DATETIME NOT NULL, valor_pago DECIMAL(10,2) NOT NULL,
  observacao TEXT, FOREIGN KEY(usuario_id) REFERENCES usuarios(id), INDEX ix_pagamentos_periodo(usuario_id,periodo_inicio,periodo_fim)

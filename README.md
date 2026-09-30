@@ -8,7 +8,9 @@ Requer .NET 10 SDK e MySQL 8.0 ou superior. Configure a conexao real em `appsett
 
 Execute `powershell -File .\iniciar-local.ps1` em `C:\controle-de-horas` e abra http://localhost:5197.
 
-O login consulta a tabela `usuarios` e valida a senha com hash. Nao existe usuario ou senha padrao. A inicializacao cria apenas a estrutura do banco. Para um banco vazio, o primeiro administrador pode ser cadastrado informando explicitamente `Administrador:Nome`, `Administrador:Login` e `Administrador:SenhaInicial` (minimo de 12 caracteres) na configuracao local ou em variaveis de ambiente com `__` no lugar de `:`. A senha e gravada como hash; remova a configuracao inicial depois do cadastro. Usuarios existentes nunca sao sobrescritos.
+Antes de atender requisicoes, a inicializacao cria o banco caso ele nao exista e garante a estrutura das tabelas. Se a tabela `usuarios` estiver vazia, cadastra automaticamente o administrador ativo `andre`, com senha inicial `12345`. A senha e gravada como hash e validada pelo login. Usuarios e senhas existentes nunca sao sobrescritos nas proximas inicializacoes. O servidor MySQL deve estar disponivel e a conexao configurada deve ter permissao para criar o banco.
+
+Para personalizar o primeiro administrador, informe `Administrador:Nome`, `Administrador:Login` e `Administrador:SenhaInicial` (minimo de 12 caracteres) na configuracao local ou em variaveis de ambiente com `__` no lugar de `:`. Quando informadas, essas credenciais substituem o acesso padrao; remova a configuracao inicial depois do cadastro.
 
 O script nao inicia nem configura bancos demonstrativos. A pasta legada `.dados-teste/mysql` foi excluida do versionamento, mas pode conter registros reais e nao deve ser apagada sem identificar seu conteudo.
 
