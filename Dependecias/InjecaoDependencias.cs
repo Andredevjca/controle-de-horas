@@ -31,6 +31,9 @@ public static class InjecaoDependencias
         services.AddScoped<IUsuariosServico, UsuariosServico>();
         services.AddScoped<IDashboardServico, DashboardServico>();
         services.AddScoped<IRelatoriosServico, RelatoriosServico>();
+        services.AddScoped<IWhatsAppRepositorio, WhatsAppRepositorio>();
+        services.AddHttpClient<IWhatsAppGateway, EvolutionWhatsAppGateway>();
+        services.AddScoped<WhatsAppRelatoriosServico>();
         services.AddScoped<IAutenticacaoServico, AutenticacaoServico>();
         return services;
     }

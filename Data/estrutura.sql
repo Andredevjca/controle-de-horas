@@ -44,3 +44,24 @@ CREATE TABLE IF NOT EXISTS historico_demandas (
  FOREIGN KEY(usuario_id) REFERENCES usuarios(id), FOREIGN KEY(demanda_id) REFERENCES demandas(id), INDEX ix_historico(usuario_id,data)
 ) ENGINE=InnoDB;
 
+CREATE TABLE IF NOT EXISTS whatsapp_contatos (
+ id INT AUTO_INCREMENT PRIMARY KEY, usuario_id INT NOT NULL, nome VARCHAR(120) NOT NULL,
+ telefone VARCHAR(20) NOT NULL, template TEXT NOT NULL,
+ FOREIGN KEY(usuario_id) REFERENCES usuarios(id), INDEX ix_whatsapp_contatos(usuario_id,nome)
+) ENGINE=InnoDB;
+CREATE TABLE IF NOT EXISTS whatsapp_conexoes (
+ usuario_id INT PRIMARY KEY, instancia VARCHAR(100) NOT NULL UNIQUE,
+ FOREIGN KEY(usuario_id) REFERENCES usuarios(id)
+) ENGINE=InnoDB;
+CREATE TABLE IF NOT EXISTS whatsapp_envios (
+ id BIGINT AUTO_INCREMENT PRIMARY KEY, usuario_id INT NOT NULL, chave CHAR(36) NOT NULL,
+ nome VARCHAR(120) NOT NULL, telefone VARCHAR(20) NOT NULL, template TEXT NOT NULL, mensagem TEXT NOT NULL,
+ instancia VARCHAR(100) NOT NULL, tipo VARCHAR(10) NOT NULL, inicio DATE NOT NULL, fim DATE NOT NULL,
+ demanda_id INT NULL, filtro_status VARCHAR(25) NULL,
+ nome_arquivo VARCHAR(180) NOT NULL, mime VARCHAR(120) NOT NULL, arquivo MEDIUMBLOB NOT NULL,
+ status VARCHAR(20) NOT NULL, evolution_id VARCHAR(200) NULL, erro VARCHAR(500) NULL,
+ criado_em DATETIME NOT NULL DEFAULT (UTC_TIMESTAMP()), finalizado_em DATETIME NULL,
+ FOREIGN KEY(usuario_id) REFERENCES usuarios(id), UNIQUE KEY uq_whatsapp_envio(usuario_id,chave),
+ INDEX ix_whatsapp_envios(usuario_id,id)
+) ENGINE=InnoDB;
+

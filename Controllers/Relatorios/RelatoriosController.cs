@@ -12,6 +12,16 @@ public class RelatoriosController(IRelatoriosServico servico) : ControladorBase
         catch (InvalidOperationException erro) { TempData["Erro"] = erro.Message; return RedirectToAction(nameof(Index)); }
     }
     public Task<IActionResult> Valores(FiltroPeriodo filtro) => Index(filtro);
+    public async Task<IActionResult> Pdf(FiltroPeriodo filtro)
+    {
+        if (!ModelState.IsValid) return BadRequest("Período inválido.");
+        try
+        {
+            var painel = await servico.PainelAsync(UsuarioId, filtro);
+            return File(servico.GerarPdf(painel, User.Identity!.Name), "application/pdf", $"horas-{filtro.Inicio:yyyyMMdd}-{filtro.Fim:yyyyMMdd}.pdf");
+        }
+        catch (InvalidOperationException erro) { return BadRequest(erro.Message); }
+    }
     public async Task<IActionResult> Imprimir(FiltroPeriodo filtro)
     {
         if (!ModelState.IsValid) return BadRequest("Período inválido.");

@@ -1,0 +1,12 @@
+@model EnvioRelatorioWhatsApp
+@{ ViewData["Title"] = "Detalhes do envio WhatsApp"; }
+<div class="titulo-pagina"><div><span class="sobretitulo">HISTÓRICO WHATSAPP</span><h1>Envio #@Model.Id</h1><p>@Model.Nome · @Model.Telefone</p></div><a asp-action="Index" asp-route-Inicio="@Model.Inicio.ToString("yyyy-MM-dd")" asp-route-Fim="@Model.Fim.ToString("yyyy-MM-dd")" asp-route-DemandaId="@Model.DemandaId" asp-route-Status="@Model.FiltroStatus" class="btn btn-outline-secondary">Voltar ao histórico</a></div>
+<section class="card card-body"><h2 class="h5">Status: @Model.Status</h2>
+@if(Model.Status == "Aceito") { <p class="text-success">Solicitação aceita pela Evolution. A entrega e a leitura não são confirmadas por este status.</p> }
+@if(Model.Status is "Enviando" or "Incerto") { <p class="text-warning">O resultado ainda não foi confirmado. Atualize esta página e confira a conversa no WhatsApp antes de realizar outro envio.</p> }
+@if(!string.IsNullOrEmpty(Model.Erro)) { <p class="alert alert-warning">@Model.Erro</p> }
+<dl class="row"><dt class="col-sm-3">Criado em</dt><dd class="col-sm-9">@Horario.Local(Model.CriadoEm).ToString("dd/MM/yyyy HH:mm:ss") (Brasília)</dd><dt class="col-sm-3">Período</dt><dd class="col-sm-9">@Model.Inicio.ToString("dd/MM/yyyy") a @Model.Fim.ToString("dd/MM/yyyy")</dd><dt class="col-sm-3">Documento</dt><dd class="col-sm-9">@Model.NomeArquivo</dd><dt class="col-sm-3">Protocolo Evolution</dt><dd class="col-sm-9">@(Model.EvolutionId ?? "Não informado")</dd></dl>
+<h3 class="h6">Mensagem registrada</h3><p style="white-space:pre-wrap;overflow-wrap:anywhere">@Model.Mensagem</p>
+<details class="mb-3"><summary>Template usado</summary><p style="white-space:pre-wrap;overflow-wrap:anywhere">@Model.Template</p></details>
+<div><a data-no-spa asp-action="Arquivo" asp-route-id="@Model.Id" class="btn btn-primary">Baixar o anexo registrado</a><a asp-action="Detalhes" asp-route-id="@Model.Id" class="btn btn-outline-secondary">Atualizar status</a></div>
+</section>

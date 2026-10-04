@@ -11,6 +11,14 @@ public class RelatoriosServico(IPainelServico painel) : IRelatoriosServico
     public async Task<byte[]> ExportarExcelAsync(int usuarioId, FiltroPeriodo filtro, string? nomeUsuario)
     {
         var painel = await PainelAsync(usuarioId, filtro);
+        return GerarExcel(painel, nomeUsuario);
+    }
+
+    public byte[] GerarPdf(Painel painel, string? nomeUsuario) => RelatorioPdf.Gerar(painel, nomeUsuario);
+
+    public byte[] GerarExcel(Painel painel, string? nomeUsuario)
+    {
+        var filtro = painel.Filtro;
         using var arquivo = new XLWorkbook();
         var planilha = arquivo.Worksheets.Add("Controle de horas");
         planilha.Cell(1, 1).Value = "CONTROLE DE HORAS";
