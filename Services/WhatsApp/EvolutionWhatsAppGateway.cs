@@ -85,8 +85,24 @@ public sealed class EvolutionWhatsAppGateway : IWhatsAppGateway
     public async Task DesconectarAsync(string instancia)
     {
         ExigirConfiguracao();
-        using var resposta = await http.PostAsync($"instance/logout/{Uri.EscapeDataString(instancia)}", null);
-        if (!resposta.IsSuccessStatusCode) throw new InvalidOperationException("Não foi possível desconectar o WhatsApp.");
+        var endpoints = new[]
+        {
+            $"instance/logout/{Uri.EscapeDataString(instancia)}",
+            $"instance/disconnect/{Uri.EscapeDataString(instancia)}",
+            $"instance/restart/{Uri.EscapeDataString(instancia)}"
+        };
+        Exception? ultimoErro = null;
+        foreach (var endpoint in endpoints)
+        {
+            try
+            {
+                using var resposta = await http.PostAsync(endpoint, null);
+                if (resposta.IsSuccessStatusCode) return;
+                ultimoErro ??= new InvalidOperationException($"A Evolution não concluiu a desconexão (HTTP {(int)resposta.StatusCode}).");
+            }
+            catch (HttpRequestException e) { ultimoErro ??= e; }
+        }
+        throw ultimoErro ?? new InvalidOperationException("Não foi possível desconectar o WhatsApp.");
     }
     public async Task<ResultadoWhatsApp> EnviarAsync(EnvioRelatorioWhatsApp envio)
     {

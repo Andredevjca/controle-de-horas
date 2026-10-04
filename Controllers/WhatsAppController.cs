@@ -77,8 +77,15 @@ public sealed class WhatsAppController(WhatsAppRelatoriosServico servico, IWhats
     [HttpPost]
     public async Task<IActionResult> Desconectar()
     {
-        try { await servico.DesconectarAsync(UsuarioId); return Json(new { conectado = false }); }
-        catch (Exception e) { logger.LogWarning(e, "Falha ao desconectar WhatsApp"); return StatusCode(502, new { erro = "Não foi possível desconectar. Atualize o status." }); }
+        try { await servico.DesconectarAsync(UsuarioId); }
+        catch (Exception e) { logger.LogWarning(e, "Falha ao solicitar desconexão WhatsApp do usuário {UsuarioId}", UsuarioId); }
+        try { return Json(await servico.StatusAsync(UsuarioId)); }
+        catch (InvalidOperationException e) { return StatusCode(502, new { erro = e.Message }); }
+        catch (Exception e)
+        {
+            logger.LogWarning(e, "Falha ao consultar status após desconexão WhatsApp");
+            return StatusCode(502, new { erro = "Não foi possível confirmar a desconexão. Clique em Atualizar." });
+        }
     }
     private async Task<IActionResult> ConexaoAsync(Func<Task<ContaWhatsApp>> operacao)
     {
