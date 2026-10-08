@@ -8,7 +8,7 @@ public class DemandasController(IDemandasServico servico) : ControladorBase
     public async Task<IActionResult> Index(string? busca, string? status)
     {
         var painel = await servico.PainelAsync(UsuarioId);
-        painel.Demandas = painel.Demandas.Where(d => (string.IsNullOrWhiteSpace(busca) || d.Titulo.Contains(busca, StringComparison.OrdinalIgnoreCase) || d.Codigo.Contains(busca, StringComparison.OrdinalIgnoreCase)) && (string.IsNullOrEmpty(status) || d.Status == status)).ToList();
+        painel.Demandas = painel.Demandas.Where(d => !d.Quitada && (string.IsNullOrWhiteSpace(busca) || d.Titulo.Contains(busca, StringComparison.OrdinalIgnoreCase) || d.Codigo.Contains(busca, StringComparison.OrdinalIgnoreCase)) && (string.IsNullOrEmpty(status) || d.Status == status)).ToList();
         ViewBag.Busca = busca; ViewBag.Status = status;
         return View(painel);
     }

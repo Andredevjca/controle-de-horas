@@ -1,5 +1,5 @@
 ﻿@model Painel
 @{ ViewData["Title"] = "Apontamentos"; ViewData["FiltroDemanda"] = true; }
-<div class="titulo-pagina"><div><span class="sobretitulo">TRABALHO</span><h1>Apontamentos de horas</h1><p>Cada período trabalhado, em um só lugar.</p></div><a class="btn btn-primary" asp-action="Manual"><i class="fa-solid fa-plus me-2"></i>Lançar horas</a></div>
+<div class="titulo-pagina"><div><span class="sobretitulo">TRABALHO</span><h1>Apontamentos de horas</h1><p>Apontamentos ainda não quitados. Consulte os pagos no Histórico.</p></div><a class="btn btn-primary" asp-action="Manual"><i class="fa-solid fa-plus me-2"></i>Lançar horas</a></div>
 <partial name="_Filtros" model="Model"/><partial name="_Horas" model="Model"/>
 <p class="text-muted mt-3">Horários de Brasília. Períodos que atravessam a meia-noite são divididos por dia. Pausas não são contabilizadas.</p>

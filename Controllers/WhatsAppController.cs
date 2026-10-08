@@ -38,7 +38,7 @@ public sealed class WhatsAppController(WhatsAppRelatoriosServico servico, IWhats
         try { return View("Index", await PaginaAsync(filtro, edicao: contato)); }
         catch (InvalidOperationException e) { TempData["Erro"] = e.Message; return RedirectToAction("Valores", "Relatorios"); }
     }
-    private IActionResult Voltar(FiltroPeriodo f) => RedirectToAction(nameof(Index), new { f.Inicio, f.Fim, f.DemandaId, f.Status });
+    private IActionResult Voltar(FiltroPeriodo f) => RedirectToAction(nameof(Index), new { f.Inicio, f.Fim, f.DemandaId, f.Status, f.Pagamento });
     [HttpPost]
     public async Task<IActionResult> Enviar(EnviarRelatorioWhatsApp pedido)
     {

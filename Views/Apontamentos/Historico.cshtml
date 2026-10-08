@@ -1,9 +1,9 @@
 ﻿@model Painel
-@{ ViewData["Title"] = "Histórico de horas"; ViewData["FiltroDemanda"] = true; }
-<div class="titulo-pagina"><div><span class="sobretitulo">TRABALHO</span><h1>Histórico de horas</h1><p>Consulte suas atividades por período, demanda e status.</p></div><a asp-action="Manual" class="btn btn-outline-secondary">Registrar horas</a></div>
+@{ ViewData["Title"] = "Histórico de horas"; ViewData["FiltroDemanda"] = true; ViewData["FiltroPagamento"] = true; }
+<div class="titulo-pagina"><div><span class="sobretitulo">TRABALHO</span><h1>Histórico de horas</h1><p>Consulte todas as atividades, pagas, parciais ou não pagas.</p></div><a asp-action="Manual" class="btn btn-outline-secondary">Registrar horas</a></div>
 <partial name="_Filtros" model="Model"/>
 <partial name="_Horas" model="Model"/>
-<p class="text-muted mt-3">Valor/hora: @(Model.ValorHora.HasValue ? Formato.Dinheiro(Model.ValorHora) : "Não definido") · Horário de Brasília. Pausas não entram no total.</p>
+<p class="text-muted mt-3">Valor/hora: @(Model.ValorHora.HasValue ? Formato.Dinheiro(Model.ValorHora) : "Não definido") · Horário de Brasília. Pausas não entram no total. Os pagamentos são distribuídos entre as horas da competência; sem valor/hora, a quitação não pode ser apurada.</p>
 <details class="painel mt-4"><summary class="fw-bold">Registro de alterações · últimas 100 atividades</summary>
 @foreach(ControleHoras.Models.RegistroHistorico registro in ViewBag.Historico){<div class="evento"><span>@Horario.Local(registro.Data).ToString("dd/MM/yyyy HH:mm:ss")</span><strong>@registro.Acao</strong><small>@registro.Detalhes</small>@if(registro.DemandaId.HasValue){<a asp-controller="Demandas" asp-action="Detalhes" asp-route-id="@registro.DemandaId">Abrir demanda</a>}</div>}
 </details>

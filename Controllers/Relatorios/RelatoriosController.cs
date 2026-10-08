@@ -11,7 +11,7 @@ public class RelatoriosController(IRelatoriosServico servico) : ControladorBase
         try { return View("Index", await servico.PainelAsync(UsuarioId, filtro)); }
         catch (InvalidOperationException erro) { TempData["Erro"] = erro.Message; return RedirectToAction(nameof(Index)); }
     }
-    public Task<IActionResult> Valores(FiltroPeriodo filtro) => Index(filtro);
+    public Task<IActionResult> Valores(FiltroPeriodo filtro) { filtro.Pagamento = "Pendente"; return Index(filtro); }
     public async Task<IActionResult> Pdf(FiltroPeriodo filtro)
     {
         if (!ModelState.IsValid) return BadRequest("Período inválido.");

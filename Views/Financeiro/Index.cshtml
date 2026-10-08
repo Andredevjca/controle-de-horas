@@ -1,0 +1,23 @@
+@model FinanceiroPainel
+@{ ViewData["Title"] = "Financeiro"; var maiorRecebimento = Model.Meses.Select(m => m.Recebido).DefaultIfEmpty().Max(); }
+<div class="titulo-pagina"><div><span class="sobretitulo">VISÃO FINANCEIRA</span><h1>Financeiro</h1><p>Recebimentos, demandas e horas por mês.</p></div><a asp-controller="Pagamentos" asp-action="Index" class="btn btn-primary">Registrar pagamentos</a></div>
+<partial name="_Filtros" model="@(new Painel { Filtro = Model.Filtro })"/>
+<div class="indicadores">
+<div class="indicador"><span>Recebido no período</span><strong>@Formato.Dinheiro(Model.Recebido)</strong><small>Pela data da baixa · @Model.DemandasRecebidas demandas</small></div>
+<div class="indicador"><span>Demandas trabalhadas</span><strong>@Model.Demandas</strong><small>Com horas no período</small></div>
+<div class="indicador"><span>Horas trabalhadas</span><strong>@Formato.Horas(Model.Segundos)</strong><small>Pela data do trabalho</small></div>
+<div class="indicador"><span>A receber pelas horas</span><strong>@Formato.Dinheiro(Model.Saldo)</strong><small>Saldo das horas filtradas</small></div>
+</div>
+<div class="painel tabela-painel mb-4"><div class="painel-titulo"><h2>Evolução mensal</h2><span class="text-muted">Total recebido em todo o histórico: @Formato.Dinheiro(Model.TotalRecebidoGeral)</span></div>
+<div class="table-responsive"><table class="table"><thead><tr><th>Mês</th><th>Demandas trabalhadas</th><th>Horas</th><th>Valor estimado</th><th>Demandas com recebimento</th><th>Recebido no mês</th><th>A receber pelas horas</th></tr></thead><tbody>
+@foreach(var mes in Model.Meses) {
+<tr><td>@mes.Mes.ToString("MM/yyyy")</td><td>@mes.Demandas</td><td>@Formato.Horas(mes.Segundos)</td><td>@Formato.Dinheiro(mes.Estimado)</td><td>@mes.DemandasRecebidas</td><td><strong>@Formato.Dinheiro(mes.Recebido)</strong><div class="progress mt-1" style="height: 6px" aria-hidden="true"><div class="progress-bar" style="width: @((maiorRecebimento > 0 ? mes.Recebido / maiorRecebimento * 100 : 0).ToString("0.##", System.Globalization.CultureInfo.InvariantCulture))%"></div></div></td><td>@Formato.Dinheiro(mes.Saldo)</td></tr>
+}
+</tbody></table></div></div>
+<p class="text-muted">Horas e valores estimados seguem o mês trabalhado. Recebimentos seguem o mês da baixa, mesmo que a competência seja de outro mês. Uma demanda pode aparecer em mais de um mês. O saldo considera os pagamentos vinculados às horas, inclusive baixas feitas fora do intervalo consultado.</p>
+<div class="painel tabela-painel"><div class="painel-titulo"><h2>Todos os recebimentos do período</h2><span class="badge-status">@Model.Recebimentos.Count registros</span></div><div class="table-responsive"><table class="table"><thead><tr><th>Demanda</th><th>Data da baixa</th><th>Competência</th><th>Observação</th><th>Valor recebido</th><th>Status do registro</th></tr></thead><tbody>
+@foreach(var pagamento in Model.Recebimentos) {
+<tr><td>@(pagamento.DemandaNome ?? "Sem demanda (registro anterior)")</td><td>@pagamento.DataPagamento.ToString("dd/MM/yyyy")</td><td>@pagamento.PeriodoInicio.ToString("dd/MM/yyyy") a @pagamento.PeriodoFim.ToString("dd/MM/yyyy")</td><td>@pagamento.Observacao</td><td>@Formato.Dinheiro(pagamento.ValorPago)</td><td><span class="badge-status">Recebido</span></td></tr>
+}
+@if(Model.Recebimentos.Count == 0) { <tr><td colspan="6" class="vazio">Nenhum recebimento nas datas selecionadas.</td></tr> }
+</tbody></table></div></div>

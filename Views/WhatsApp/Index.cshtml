@@ -1,6 +1,6 @@
 @model WhatsAppPagina
 @{ ViewData["Title"] = "Enviar relatório pelo WhatsApp"; var f = Model.Filtro; }
-<div class="titulo-pagina"><div><span class="sobretitulo">RELATÓRIOS / VALORES</span><h1>Enviar pelo WhatsApp</h1><p>Escolha o cliente, revise a mensagem e envie o relatório como anexo.</p></div><a asp-controller="Relatorios" asp-action="Valores" asp-route-Inicio="@f.Inicio.ToString("yyyy-MM-dd")" asp-route-Fim="@f.Fim.ToString("yyyy-MM-dd")" asp-route-DemandaId="@f.DemandaId" asp-route-Status="@f.Status" class="btn btn-outline-secondary">Voltar aos valores</a></div>
+<div class="titulo-pagina"><div><span class="sobretitulo">RELATÓRIOS / VALORES</span><h1>Enviar pelo WhatsApp</h1><p>Escolha o cliente, revise a mensagem e envie o relatório como anexo.</p></div><a asp-controller="Relatorios" asp-action="Valores" asp-route-Inicio="@f.Inicio.ToString("yyyy-MM-dd")" asp-route-Fim="@f.Fim.ToString("yyyy-MM-dd")" asp-route-DemandaId="@f.DemandaId" asp-route-Status="@f.Status" asp-route-Pagamento="@f.Pagamento" class="btn btn-outline-secondary">Voltar aos valores</a></div>
 <div id="whatsapp-relatorios" data-configurado="@Model.Configurado.ToString().ToLowerInvariant()">
 <div asp-validation-summary="All" class="text-danger" role="alert"></div>
 <div class="row g-4">
@@ -20,14 +20,14 @@
     @if(f.DemandaId.HasValue || !string.IsNullOrEmpty(f.Status)) { <p class="small text-muted">Filtros: @(f.DemandaId.HasValue ? $"DEV-{f.DemandaId:000}" : "Todas as demandas") · @(f.Status ?? "Todas as situações")</p> }
     <form asp-action="Enviar" method="post" id="wa-envio">
         <input type="hidden" name="Chave" value="@Guid.NewGuid()" />
-        <input type="hidden" name="Filtro.Inicio" value="@f.Inicio.ToString("yyyy-MM-dd")"/><input type="hidden" name="Filtro.Fim" value="@f.Fim.ToString("yyyy-MM-dd")"/><input type="hidden" name="Filtro.DemandaId" value="@f.DemandaId"/><input type="hidden" name="Filtro.Status" value="@f.Status"/>
+        <input type="hidden" name="Filtro.Inicio" value="@f.Inicio.ToString("yyyy-MM-dd")"/><input type="hidden" name="Filtro.Fim" value="@f.Fim.ToString("yyyy-MM-dd")"/><input type="hidden" name="Filtro.DemandaId" value="@f.DemandaId"/><input type="hidden" name="Filtro.Status" value="@f.Status"/><input type="hidden" name="Filtro.Pagamento" value="@f.Pagamento"/>
         <div class="row g-3"><div class="col-md-8"><label for="wa-cliente" class="form-label">Cliente salvo</label><select id="wa-cliente" name="ContatoId" class="form-select" required><option value="">Selecione um cliente</option>
         @foreach(var c in Model.Contatos) { <option value="@c.Id" data-mensagem="@ControleHoras.Services.WhatsAppRelatoriosServico.Mensagem(c.Template, c.Nome, Model.Resumo)">@c.Nome · @c.Telefone</option> }
         </select></div><div class="col-md-4"><label for="wa-tipo" class="form-label">Documento</label><select name="Tipo" id="wa-tipo" class="form-select"><option value="pdf">PDF</option><option value="excel">Excel (.xlsx)</option></select></div></div>
         <label for="wa-previa" class="form-label mt-3">Mensagem que acompanha o anexo</label><textarea id="wa-previa" class="form-control" rows="4" readonly placeholder="Selecione um cliente para revisar a mensagem."></textarea>
         <p class="small text-muted mt-2">As horas em andamento são atualizadas no momento da emissão. Para alterar a mensagem, edite e salve o template do cliente abaixo.</p>
         <div class="d-flex gap-2 flex-wrap"><button type="submit" class="btn btn-success" id="wa-enviar" disabled>Enviar pelo WhatsApp</button>
-        <a data-no-spa target="_blank" rel="noopener" id="wa-download" asp-controller="Relatorios" asp-action="Pdf" asp-route-Inicio="@f.Inicio.ToString("yyyy-MM-dd")" asp-route-Fim="@f.Fim.ToString("yyyy-MM-dd")" asp-route-DemandaId="@f.DemandaId" asp-route-Status="@f.Status" class="btn btn-outline-secondary">Conferir documento</a></div>
+        <a data-no-spa target="_blank" rel="noopener" id="wa-download" asp-controller="Relatorios" asp-action="Pdf" asp-route-Inicio="@f.Inicio.ToString("yyyy-MM-dd")" asp-route-Fim="@f.Fim.ToString("yyyy-MM-dd")" asp-route-DemandaId="@f.DemandaId" asp-route-Status="@f.Status" asp-route-Pagamento="@f.Pagamento" class="btn btn-outline-secondary">Conferir documento</a></div>
         <noscript><p class="text-danger">Ative o JavaScript para conectar e enviar pelo WhatsApp.</p></noscript>
     </form>
 </section></div>
@@ -36,16 +36,16 @@
     <h2 class="h5">@(Model.Edicao.Id > 0 ? "Editar cliente e template" : "Cadastrar cliente e template")</h2>
     <form asp-action="SalvarContato" method="post">
         <input type="hidden" name="Id" value="@Model.Edicao.Id"/>
-        <input type="hidden" name="Filtro.Inicio" value="@f.Inicio.ToString("yyyy-MM-dd")"/><input type="hidden" name="Filtro.Fim" value="@f.Fim.ToString("yyyy-MM-dd")"/><input type="hidden" name="Filtro.DemandaId" value="@f.DemandaId"/><input type="hidden" name="Filtro.Status" value="@f.Status"/>
+        <input type="hidden" name="Filtro.Inicio" value="@f.Inicio.ToString("yyyy-MM-dd")"/><input type="hidden" name="Filtro.Fim" value="@f.Fim.ToString("yyyy-MM-dd")"/><input type="hidden" name="Filtro.DemandaId" value="@f.DemandaId"/><input type="hidden" name="Filtro.Status" value="@f.Status"/><input type="hidden" name="Filtro.Pagamento" value="@f.Pagamento"/>
         <div class="row g-3"><div class="col-md-6"><label for="wa-nome" class="form-label">Nome do cliente</label><input id="wa-nome" name="Nome" value="@Model.Edicao.Nome" required maxlength="120" class="form-control"/></div><div class="col-md-6"><label for="wa-telefone" class="form-label">Telefone com DDD</label><input id="wa-telefone" type="tel" name="Telefone" value="@Model.Edicao.Telefone" required maxlength="30" placeholder="(11) 99999-9999" class="form-control"/></div></div>
         <label for="wa-template" class="form-label mt-3">Template da mensagem</label><textarea id="wa-template" name="Template" required maxlength="1000" rows="3" class="form-control">@Model.Edicao.Template</textarea>
         <p class="small text-muted mt-2">Variáveis: <code>{cliente}</code>, <code>{inicio}</code>, <code>{fim}</code>, <code>{horas}</code>, <code>{valor}</code> e <code>{saldo}</code>.</p>
         <button type="submit" class="btn btn-primary">Salvar cliente e template</button>
-        @if(Model.Edicao.Id > 0) { <a asp-action="Index" asp-route-Inicio="@f.Inicio.ToString("yyyy-MM-dd")" asp-route-Fim="@f.Fim.ToString("yyyy-MM-dd")" asp-route-DemandaId="@f.DemandaId" asp-route-Status="@f.Status" class="btn btn-outline-secondary">Cadastrar outro cliente</a> }
+        @if(Model.Edicao.Id > 0) { <a asp-action="Index" asp-route-Inicio="@f.Inicio.ToString("yyyy-MM-dd")" asp-route-Fim="@f.Fim.ToString("yyyy-MM-dd")" asp-route-DemandaId="@f.DemandaId" asp-route-Status="@f.Status" asp-route-Pagamento="@f.Pagamento" class="btn btn-outline-secondary">Cadastrar outro cliente</a> }
     </form>
     @if(Model.Contatos.Count > 0) {
     <div class="table-responsive mt-3"><table class="table align-middle"><thead><tr><th>Cliente</th><th>Telefone</th><th></th></tr></thead><tbody>
-    @foreach(var c in Model.Contatos) { <tr><td>@c.Nome</td><td>@c.Telefone</td><td><a asp-action="Index" asp-route-editar="@c.Id" asp-route-Inicio="@f.Inicio.ToString("yyyy-MM-dd")" asp-route-Fim="@f.Fim.ToString("yyyy-MM-dd")" asp-route-DemandaId="@f.DemandaId" asp-route-Status="@f.Status" class="btn btn-sm btn-outline-secondary">Editar</a></td></tr> }
+    @foreach(var c in Model.Contatos) { <tr><td>@c.Nome</td><td>@c.Telefone</td><td><a asp-action="Index" asp-route-editar="@c.Id" asp-route-Inicio="@f.Inicio.ToString("yyyy-MM-dd")" asp-route-Fim="@f.Fim.ToString("yyyy-MM-dd")" asp-route-DemandaId="@f.DemandaId" asp-route-Status="@f.Status" asp-route-Pagamento="@f.Pagamento" class="btn btn-sm btn-outline-secondary">Editar</a></td></tr> }
     </tbody></table></div> }
 </section>
 <section class="card card-body mt-4"><h2 class="h5">Histórico de envios <span class="text-muted">(@Model.Total)</span></h2>
@@ -55,7 +55,7 @@
 @if(Model.Historico.Count == 0) { <tr><td colspan="6" class="text-muted">Nenhum envio registrado.</td></tr> }
 </tbody></table></div>
 <div class="d-flex gap-3 align-items-center"><span>Página @Model.Pagina</span>
-@if(Model.Pagina > 1) { <a asp-action="Index" asp-route-pagina="@(Model.Pagina - 1)" asp-route-Inicio="@f.Inicio.ToString("yyyy-MM-dd")" asp-route-Fim="@f.Fim.ToString("yyyy-MM-dd")" asp-route-DemandaId="@f.DemandaId" asp-route-Status="@f.Status">Anterior</a> }
-@if(Model.Pagina * 20 < Model.Total) { <a asp-action="Index" asp-route-pagina="@(Model.Pagina + 1)" asp-route-Inicio="@f.Inicio.ToString("yyyy-MM-dd")" asp-route-Fim="@f.Fim.ToString("yyyy-MM-dd")" asp-route-DemandaId="@f.DemandaId" asp-route-Status="@f.Status">Próxima</a> }
+@if(Model.Pagina > 1) { <a asp-action="Index" asp-route-pagina="@(Model.Pagina - 1)" asp-route-Inicio="@f.Inicio.ToString("yyyy-MM-dd")" asp-route-Fim="@f.Fim.ToString("yyyy-MM-dd")" asp-route-DemandaId="@f.DemandaId" asp-route-Status="@f.Status" asp-route-Pagamento="@f.Pagamento">Anterior</a> }
+@if(Model.Pagina * 20 < Model.Total) { <a asp-action="Index" asp-route-pagina="@(Model.Pagina + 1)" asp-route-Inicio="@f.Inicio.ToString("yyyy-MM-dd")" asp-route-Fim="@f.Fim.ToString("yyyy-MM-dd")" asp-route-DemandaId="@f.DemandaId" asp-route-Status="@f.Status" asp-route-Pagamento="@f.Pagamento">Próxima</a> }
 </div></section>
 </div>

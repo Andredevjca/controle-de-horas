@@ -1,21 +1,59 @@
 @model Painel
 @{ ViewData["Title"] = "Pagamentos"; }
-<div class="titulo-pagina"><div><span class="sobretitulo">FINANCEIRO</span><h1>Pagamentos</h1><p>Acompanhe o que já recebeu e o que ainda está pendente.</p></div><button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#novoPagamento"><i class="fa-solid fa-plus me-2"></i>Registrar pagamento</button></div>
+<div class="titulo-pagina"><div><span class="sobretitulo">FINANCEIRO</span><h1>Pagamentos</h1><p>Selecione as demandas não quitadas e registre a baixa.</p></div><button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#novoPagamento"><i class="fa-solid fa-plus me-2"></i>Registrar pagamento</button></div>
 <partial name="_Filtros" model="Model"/>
-<div class="indicadores"><div class="indicador"><span>Horas do período</span><strong>@Formato.Horas(Model.Segundos)</strong></div><div class="indicador"><span>Valor estimado</span><strong>@Formato.Dinheiro(Model.Estimado)</strong></div><div class="indicador"><span>Valor pago</span><strong>@Formato.Dinheiro(Model.Pago)</strong></div><div class="indicador"><span>A receber</span><strong>@Formato.Dinheiro(Model.Saldo)</strong><small>@(Model.Saldo == null ? "Valor/hora não definido" : Model.Saldo <= 0 ? "Pago" : "Aguardando pagamento")</small></div></div>
-<div class="painel tabela-painel"><div class="painel-titulo"><h2>Recebimentos registrados</h2><span class="badge-status">@Model.Pagamentos.Count pagamentos</span></div><div class="table-responsive"><table class="table"><thead><tr><th>Nome da demanda</th><th>Data do pagamento</th><th>Competência</th><th>Observação</th><th>Valor pago</th><th>Status</th></tr></thead><tbody>@foreach(var pagamento in Model.Pagamentos){<tr><td>@(pagamento.DemandaNome ?? "Sem demanda (registro anterior)")</td><td>@pagamento.DataPagamento.ToString("dd/MM/yyyy")</td><td>@pagamento.PeriodoInicio.ToString("dd/MM/yyyy") a @pagamento.PeriodoFim.ToString("dd/MM/yyyy")</td><td>@pagamento.Observacao</td><td class="fw-bold">@Formato.Dinheiro(pagamento.ValorPago)</td><td><span class="badge-status andamento">Pago</span></td></tr>}@if(Model.Pagamentos.Count==0){<tr><td class="vazio" colspan="6"><strong>Nenhum pagamento neste período</strong><span>Registre o recebimento assim que o pagamento for realizado.</span></td></tr>}</tbody></table></div></div>
-<p class="text-muted mt-3">O filtro inclui pagamentos cuja competência inteira está dentro do período. Recebimentos parciais são somados; saldo negativo representa crédito. Pagamentos não dependem de valor/hora definido.</p>
+<div class="indicadores"><div class="indicador"><span>Horas não quitadas</span><strong>@Formato.Horas(Model.Segundos)</strong></div><div class="indicador"><span>Valor estimado</span><strong>@Formato.Dinheiro(Model.Estimado)</strong></div><div class="indicador"><span>Pago parcialmente</span><strong>@Formato.Dinheiro(Model.Pago)</strong></div><div class="indicador"><span>A receber</span><strong>@Formato.Dinheiro(Model.Saldo)</strong><small>@(Model.Saldo == null ? "Valor/hora não definido" : Model.Saldo <= 0 ? "Sem pendências" : "Aguardando pagamento")</small></div></div>
+<form asp-action="Baixar" method="post" id="baixa-pagamentos">
+<input type="hidden" name="Inicio" value="@Model.Filtro.Inicio.ToString("yyyy-MM-dd")"/>
+<input type="hidden" name="Fim" value="@Model.Filtro.Fim.ToString("yyyy-MM-dd")"/>
+<div class="painel tabela-painel mb-4">
+    <div class="painel-titulo"><div><h2>Demandas não quitadas do período</h2><small>@Model.Filtro.Inicio.ToString("dd/MM/yyyy") a @Model.Filtro.Fim.ToString("dd/MM/yyyy") · @Model.DemandasPagamento.Count demandas</small></div>
+    <button type="button" class="btn btn-primary" id="pagar-selecionadas" data-bs-toggle="modal" data-bs-target="#confirmarBaixa" disabled>Dar baixa nas selecionadas</button></div>
+    <div class="table-responsive"><table class="table"><thead><tr>
+        <th><input type="checkbox" class="form-check-input" id="selecionar-todas" aria-label="Selecionar todas as demandas disponíveis"/></th><th>Demanda</th><th>Horas no período</th><th>Valor estimado</th><th>Valor pago</th><th>A receber</th><th>Situação</th>
+    </tr></thead><tbody>
+    @foreach (var demanda in Model.DemandasPagamento)
+    {
+        <tr>
+            <td><input type="checkbox" class="form-check-input demanda-pagamento" name="DemandaIds" value="@demanda.Id" disabled="@(!demanda.PodePagar)" aria-label="Selecionar @demanda.Titulo" data-titulo="@demanda.Titulo" data-centavos="@((demanda.Saldo.GetValueOrDefault() * 100).ToString("0", System.Globalization.CultureInfo.InvariantCulture))"/></td>
+            <td>@demanda.Titulo</td><td>@Formato.Horas(demanda.Segundos)</td><td>@Formato.Dinheiro(demanda.Estimado)</td><td>@Formato.Dinheiro(demanda.Pago)</td><td class="fw-bold">@Formato.Dinheiro(demanda.Saldo)</td>
+            <td>@(demanda.CompetenciaSobreposta ? "Revisar competência" : !demanda.Estimado.HasValue ? "Defina o valor/hora" : demanda.Saldo <= 0 ? "Pago / sem saldo" : demanda.Pago > 0 ? "Parcial" : "Não pago")</td>
+        </tr>
+    }
+    @if (Model.DemandasPagamento.Count == 0)
+    {
+        <tr><td class="vazio" colspan="7"><strong>Nenhuma demanda pendente neste período</strong><span>Altere as datas do filtro para consultar outros apontamentos.</span></td></tr>
+    }
+    </tbody></table></div>
+    <div class="p-3" id="resumo-selecao" role="status" aria-live="polite">Nenhuma demanda selecionada.</div>
+</div>
+@if (Model.DemandasPagamento.Any(d => d.CompetenciaSobreposta))
+{
+    <p class="text-muted">Há registros antigos sem demanda vinculada nesta competência. Confira esses recebimentos no Financeiro antes de registrar novas baixas.</p>
+}
+<div class="modal fade" id="confirmarBaixa" tabindex="-1" aria-labelledby="tituloBaixa"><div class="modal-dialog modal-lg"><div class="modal-content">
+    <div class="modal-header"><h2 id="tituloBaixa">Confirmar baixa das demandas</h2><button class="btn-close" type="button" data-bs-dismiss="modal" aria-label="Fechar"></button></div>
+    <div class="modal-body">
+        <p>Competência: @Model.Filtro.Inicio.ToString("dd/MM/yyyy") a @Model.Filtro.Fim.ToString("dd/MM/yyyy"). A data do pagamento será o dia em que a baixa for confirmada, no horário de Brasília.</p>
+        <ul id="lista-baixa"></ul><p class="fw-bold" id="total-baixa"></p>
+        <p class="text-muted">Será registrado um recebimento pelo saldo de cada demanda selecionada. Os saldos serão conferidos novamente ao confirmar.</p>
+        <label for="observacao-baixa">Observação</label><textarea class="form-control" id="observacao-baixa" name="Observacao" maxlength="2000" rows="3"></textarea>
+    </div>
+    <div class="modal-footer"><button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button><button type="submit" class="btn btn-primary" id="confirmar-pagamentos" disabled>Confirmar baixa</button></div>
+</div></div></div>
+</form>
+<p class="text-muted mt-3">Consulte todos os recebimentos no <a asp-controller="Financeiro" asp-action="Index">Financeiro</a>. Pagamentos parciais permanecem disponíveis pelo saldo restante.</p>
 <div class="modal fade" id="novoPagamento" tabindex="-1" aria-labelledby="tituloPagamento"><div class="modal-dialog"><form asp-action="Salvar" method="post" class="modal-content"><div class="modal-header"><h2 id="tituloPagamento">Registrar pagamento</h2><button class="btn-close" type="button" data-bs-dismiss="modal" aria-label="Fechar"></button></div><div class="modal-body"><div class="row g-3">
 <div class="col-12">
 <label for="DemandaId">Demanda *</label>
 <select class="form-select" id="DemandaId" name="DemandaId" required aria-describedby="ajudaDemanda">
 <option value="">Selecione a demanda</option>
-@foreach (var demanda in Model.Demandas)
+@foreach (var demanda in Model.DemandasPagamento)
 {
-    decimal? valor = Model.ValorHora.HasValue ? demanda.Segundos / 3600m * Model.ValorHora.Value : null;
+    decimal? valor = demanda.Saldo;
     <option value="@demanda.Id">@demanda.Titulo — @Formato.Horas(demanda.Segundos) — @(valor.HasValue ? Formato.Dinheiro(valor) : "Valor/hora não definido")</option>
 }
 </select>
-<small id="ajudaDemanda" class="text-muted">Horas totais da demanda e valor estimado pelo valor/hora atual. Informe abaixo o valor efetivamente recebido.</small>
-@if (Model.Demandas.Count == 0) { <p class="text-muted mt-2">Cadastre uma demanda antes de registrar um pagamento.</p> }
-</div><div class="col-6"><label for="PeriodoInicio">Competência inicial *</label><input class="form-control" type="date" id="PeriodoInicio" name="PeriodoInicio" value="@Model.Filtro.Inicio.ToString("yyyy-MM-dd")" required/></div><div class="col-6"><label for="PeriodoFim">Competência final *</label><input class="form-control" type="date" id="PeriodoFim" name="PeriodoFim" value="@Model.Filtro.Fim.ToString("yyyy-MM-dd")" required/></div><div class="col-6"><label for="DataPagamento">Data do pagamento *</label><input class="form-control" type="date" id="DataPagamento" name="DataPagamento" value="@Horario.AgoraLocal.ToString("yyyy-MM-dd")" required/></div><div class="col-6"><label for="ValorPago">Valor recebido (R$) *</label><input class="form-control" id="ValorPago" name="ValorPago" inputmode="decimal" placeholder="0,00" pattern="[0-9]+([,][0-9]{1,2})?" required/></div><div class="col-12"><label for="Observacao">Observação</label><textarea class="form-control" id="Observacao" name="Observacao" maxlength="2000" rows="3"></textarea></div></div></div><div class="modal-footer"><button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button><button class="btn btn-primary">Registrar pagamento</button></div></form></div></div>
+<small id="ajudaDemanda" class="text-muted">Horas pendentes do filtro e saldo a receber. Informe o valor efetivamente recebido, até o saldo disponível.</small>
+@if (Model.DemandasPagamento.Count == 0) { <p class="text-muted mt-2">Não há demandas pendentes no período selecionado.</p> }
+</div><div class="col-6"><label for="PeriodoInicio">Competência inicial *</label><input class="form-control" type="date" id="PeriodoInicio" name="PeriodoInicio" value="@Model.Filtro.Inicio.ToString("yyyy-MM-dd")" required/></div><div class="col-6"><label for="PeriodoFim">Competência final *</label><input class="form-control" type="date" id="PeriodoFim" name="PeriodoFim" value="@Model.Filtro.Fim.ToString("yyyy-MM-dd")" required/></div><div class="col-6"><label>Data do pagamento</label><p class="form-control-plaintext">Automática: dia da baixa</p></div><div class="col-6"><label for="ValorPago">Valor recebido (R$) *</label><input class="form-control" id="ValorPago" name="ValorPago" inputmode="decimal" placeholder="0,00" pattern="[0-9]+([,][0-9]{1,2})?" required/></div><div class="col-12"><label for="Observacao">Observação</label><textarea class="form-control" id="Observacao" name="Observacao" maxlength="2000" rows="3"></textarea></div></div></div><div class="modal-footer"><button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button><button class="btn btn-primary">Registrar pagamento</button></div></form></div></div>

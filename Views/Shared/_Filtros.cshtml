@@ -6,5 +6,9 @@
 <div><label for="DemandaId">Demanda</label><select class="form-select" name="DemandaId" id="DemandaId"><option value="">Todas as demandas</option>@foreach(var demanda in Model.Demandas) { <option value="@demanda.Id" selected="@(demanda.Id == Model.Filtro.DemandaId)">@demanda.Codigo · @demanda.Titulo</option> }</select></div>
 <div><label for="Status">Status</label><select class="form-select" name="Status" id="Status"><option value="">Todos</option>@foreach(var status in new[]{"Pendente","Em andamento","Pausada","Concluída","Cancelada"}) { <option selected="@(status == Model.Filtro.Status)">@status</option> }</select></div>
 }
+@if (ViewData["FiltroPagamento"] as bool? == true) {
+<div><label for="Pagamento">Pagamento</label><select class="form-select" id="Pagamento" name="Pagamento"><option value="">Todos</option>@foreach(var pagamento in new[]{"Não pago", "Parcial", "Pago", "Pendente"}) { <option value="@pagamento" selected="@(Model.Filtro.Pagamento == pagamento)">@(pagamento == "Pendente" ? "Não quitados" : pagamento)</option> }</select></div>
+}
+@if (ViewData["SomentePendentes"] as bool? == true) { <input type="hidden" name="Pagamento" value="Pendente"/> }
 <button class="btn btn-primary"><i class="fa-solid fa-filter me-2"></i>Filtrar</button>
 </form>

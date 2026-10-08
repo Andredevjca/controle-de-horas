@@ -14,7 +14,7 @@
 <ul class="sidebar-menu">
 @{
  var atual = ViewContext.RouteData.Values["controller"]?.ToString();
- var itens = new[] { ("Visão geral", "Dashboard", "Dashboard", "fa-house", "/Dashboard"), ("Trabalho", "Demandas", "Demandas", "fa-list-check", "/Demandas"), ("", "Apontamentos", "Apontamentos", "fa-clock", "/Apontamentos"), ("", "Histórico", "Historico", "fa-clock-rotate-left", "/Apontamentos/Historico"), ("Financeiro", "Valores", "RelatoriosValores", "fa-wallet", "/Relatorios/Valores"), ("", "Pagamentos", "Pagamentos", "fa-money-bill-transfer", "/Pagamentos"), ("Consultas", "Relatórios", "Relatorios", "fa-chart-column", "/Relatorios"), ("Cadastros", "Usuários", "Usuarios", "fa-users", "/Usuarios"), ("Preferências", "Configurações", "Configuracoes", "fa-gear", "/Configuracoes") };
+ var itens = new[] { ("Visão geral", "Dashboard", "Dashboard", "fa-house", "/Dashboard"), ("Trabalho", "Demandas", "Demandas", "fa-list-check", "/Demandas"), ("", "Apontamentos", "Apontamentos", "fa-clock", "/Apontamentos"), ("", "Histórico", "Historico", "fa-clock-rotate-left", "/Apontamentos/Historico"), ("Financeiro", "Valores", "RelatoriosValores", "fa-wallet", "/Relatorios/Valores"), ("", "Pagamentos", "Pagamentos", "fa-money-bill-transfer", "/Pagamentos"), ("", "Financeiro", "Financeiro", "fa-chart-line", "/Financeiro"), ("Consultas", "Relatórios", "Relatorios", "fa-chart-column", "/Relatorios"), ("Cadastros", "Usuários", "Usuarios", "fa-users", "/Usuarios"), ("Preferências", "Configurações", "Configuracoes", "fa-gear", "/Configuracoes") };
 }
 @foreach (var item in itens) {
  if (item.Item3 == "Usuarios" && !User.IsInRole("Administrador")) { continue; }
@@ -37,4 +37,5 @@
 <script src="~/bibliotecas/bootstrap.bundle.min.js"></script><script src="~/js/horas.js" asp-append-version="true"></script>
 <script src="~/js/navigation.js" asp-append-version="true"></script>
 <script src="~/js/whatsapp-relatorios.js" asp-append-version="true"></script>
+<script src="~/js/pagamentos.js" asp-append-version="true"></script>
 </body></html>

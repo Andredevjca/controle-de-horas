@@ -4,6 +4,8 @@ namespace ControleHoras.Models;
 
 public class Demanda
 {
+    public string SituacaoPagamento { get; set; } = "Não pago";
+    public bool Quitada => SituacaoPagamento == "Pago";
     public int Id { get; set; }
     public int UsuarioId { get; set; }
     [Required(ErrorMessage = "Informe o título."), StringLength(180)]

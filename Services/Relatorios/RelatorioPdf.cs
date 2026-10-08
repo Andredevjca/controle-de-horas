@@ -185,6 +185,7 @@ public static class RelatorioPdf
             var filtros = new List<string>();
             if (painel.Filtro.DemandaId.HasValue) filtros.Add($"Demanda DEV-{painel.Filtro.DemandaId:000}");
             if (!string.IsNullOrWhiteSpace(painel.Filtro.Status)) filtros.Add($"Situação: {painel.Filtro.Status}");
+            if (!string.IsNullOrWhiteSpace(painel.Filtro.Pagamento)) filtros.Add($"Pagamento: {painel.Filtro.Pagamento}");
             foreach (var linha in filtros.Count == 0 ? new List<string>() : Quebrar(string.Join("  |  ", filtros), pequeno, largura))
             {
                 Garantir(15);
@@ -212,7 +213,7 @@ public static class RelatorioPdf
                 var linha = painel.Linhas[i];
                 var textos = Quebrar(linha.Titulo, forte, horasColunas[1] - 16)
                     .Select(t => (Texto: t, Fonte: forte, Cor: (XBrush)tinta)).ToList();
-                textos.Add(($"DEV-{linha.DemandaId:000}", pequeno, suave));
+                textos.Add(($"DEV-{linha.DemandaId:000} · {linha.SituacaoPagamento}", pequeno, suave));
                 if (!string.IsNullOrWhiteSpace(linha.Descricao))
                     textos.AddRange(Quebrar(linha.Descricao, pequeno, horasColunas[1] - 16)
                         .Select(t => (t, pequeno, (XBrush)suave)));
@@ -231,7 +232,7 @@ public static class RelatorioPdf
                         Celula(linha.EmAndamento ? "Em curso" : linha.Fim.ToString("HH:mm:ss"), 3,
                             horasColunas, altura, pequeno, linha.EmAndamento ? verde : tinta);
                         Celula(Formato.Horas(linha.Segundos), 4, horasColunas, altura, forte);
-                        Celula(Dinheiro(linha.Valor(painel.ValorHora)), 5, horasColunas, altura, forte, direita: true);
+                        Celula(Dinheiro(linha.Estimado ?? linha.Valor(painel.ValorHora)), 5, horasColunas, altura, forte, direita: true);
                     }
                     for (var j = 0; j < quantidade; j++)
                     {
@@ -299,7 +300,7 @@ public static class RelatorioPdf
             Texto(saldo, Ajustar(saldo, numero, largura / 2 - 28), XBrushes.White,
                 margem + largura / 2, y, largura / 2 - 14, 55, true);
             y += 65;
-            Texto("Pagamentos incluídos quando toda a competência está contida no período.", pequeno, suave,
+            Texto("Pago e saldo são proporcionais às horas filtradas. Recibos exibem valores integrais.", pequeno, suave,
                 margem, y, largura, 13);
             Texto("Cronômetros em curso são contabilizados até o momento da emissão.", pequeno, suave,
                 margem, y + 14, largura, 13);

@@ -8,10 +8,10 @@ public class ApontamentosController(IApontamentosServico servico) : ControladorB
     public async Task<IActionResult> Index(FiltroPeriodo filtro)
     {
         if (!ModelState.IsValid) { TempData["Erro"] = "Informe datas válidas."; return RedirectToAction(nameof(Index)); }
-        try { return View("Index", await servico.PainelAsync(UsuarioId, filtro)); }
+        try { var painel = await servico.PainelAsync(UsuarioId, filtro); ControleHoras.Services.SituacaoFinanceira.SomentePendentes(painel); return View("Index", painel); }
         catch (InvalidOperationException erro) { TempData["Erro"] = erro.Message; return RedirectToAction(nameof(Index)); }
     }
-    public async Task<IActionResult> Manual() { ViewBag.Demandas = await servico.DemandasAsync(UsuarioId); return View(new LancamentoManual()); }
+    public async Task<IActionResult> Manual() { ViewBag.Demandas = (await servico.PainelAsync(UsuarioId)).Demandas.Where(d => !d.Quitada).ToList(); return View(new LancamentoManual()); }
     [HttpPost] public Task<IActionResult> Salvar(LancamentoManual lancamento) => ExecutarAsync(() => servico.LancarAsync(UsuarioId, lancamento), "/Apontamentos");
     public async Task<IActionResult> Historico(FiltroPeriodo filtro)
     {
