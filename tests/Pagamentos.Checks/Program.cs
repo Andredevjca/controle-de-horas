@@ -116,6 +116,26 @@ tarifa = 100;
 registros.Clear();
 registros.Add(new() { Id = 1, DemandaId = 1, DemandaNome = "Demanda A", PeriodoInicio = inicio, PeriodoFim = fim, ValorPago = 200, DataPagamento = fim.AddDays(1) });
 await ScreenChecks.RunAsync(painel, servico, repo, demandas, apontamentos, hist, unidade, inicio, fim);
+// Uma baixa em lote deve ser somada integralmente no mês da baixa.
+horas.Add(new() { DemandaId = 2, Titulo = "Demanda B", Inicio = Horario.Utc(fim.AddDays(1).AddHours(8)), Fim = Horario.Utc(fim.AddDays(1).AddHours(9)) });
+registros.Clear();
+registros.Add(new() { Id = 1, DemandaId = 1, PeriodoInicio = inicio, PeriodoFim = fim.AddDays(1), ValorPago = 200, DataPagamento = fim.AddDays(1) });
+registros.Add(new() { Id = 2, DemandaId = 2, PeriodoInicio = inicio, PeriodoFim = fim.AddDays(1), ValorPago = 200, DataPagamento = fim.AddDays(1) });
+var financeiroController = new ControleHoras.Controllers.FinanceiroController(painel, repo) {
+    ControllerContext = new Microsoft.AspNetCore.Mvc.ControllerContext { HttpContext = new Microsoft.AspNetCore.Http.DefaultHttpContext {
+        User = new System.Security.Claims.ClaimsPrincipal(new System.Security.Claims.ClaimsIdentity(new[] { new System.Security.Claims.Claim(System.Security.Claims.ClaimTypes.NameIdentifier, "7") }, "Test"))
+    } }
+};
+var financeiroView = (Microsoft.AspNetCore.Mvc.ViewResult)await financeiroController.Index(new() { Inicio = inicio, Fim = fim.AddDays(1) });
+var mensal = (FinanceiroPainel)financeiroView.Model!;
+Check(mensal.Meses[0].Recebido == 0 && mensal.Meses[1].Recebido == 400, "Baixa em lote soma integralmente no mês da baixa");
+Check(mensal.Meses[0].Situacao == "Sem baixa" && mensal.Meses[0].QuantidadeBaixas == 0 && mensal.Meses[1].Situacao == "Com baixa" && mensal.Meses[1].QuantidadeBaixas == 2 && mensal.Meses[1].DemandasRecebidas == 2, "Situação e quantidades seguem a data da baixa");
+Check(mensal.Recebido == 400 && mensal.Recebimentos.All(p => p.DataPagamento.Month == 10), "Recibos preservam a data e o valor integral da baixa");
+var setembroView = (Microsoft.AspNetCore.Mvc.ViewResult)await financeiroController.Index(Filter());
+var setembro = (FinanceiroPainel)setembroView.Model!;
+Check(setembro.Meses.Single().Situacao == "Sem baixa" && setembro.Meses.Single().Recebido == 0 && setembro.Recebido == 0, "Setembro não recebe valores de baixas feitas em outubro");
+Check(mensal.Meses.Sum(m => m.Recebido) == mensal.Recebido, "Resumo mensal confere com o total dos recibos");
+Check(new FinanceiroMes().Situacao == "Sem baixa", "Mês sem baixa tem status explícito");
 Console.WriteLine("Todos os testes financeiros passaram. Nenhum banco real foi alterado.");
 
 public class Stub : DispatchProxy {

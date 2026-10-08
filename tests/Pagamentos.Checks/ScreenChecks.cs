@@ -52,6 +52,7 @@ static class ScreenChecks
             Check(relatorio.Contains(">Demanda A</a>") && !relatorio.Contains(">Demanda B</a>"), "Relatório filtra status financeiro");
             var financeiro = await Get("/Financeiro?Inicio=2026-09-01&Fim=2026-10-31");
             Check(financeiro.Contains("09/2026") && financeiro.Contains("10/2026") && financeiro.Contains("Demanda A") && financeiro.Contains("01/10/2026"), "Financeiro mostra meses e baixa na data do recebimento");
+            Check(financeiro.Contains("Evolução por mês") && financeiro.Contains("progressbar") && !financeiro.Contains("<th>Situação</th>") && !financeiro.Contains("Pago pelas horas"), "Resumo mensal mostra barras sem coluna de situação");
             var forbidden = await client.PostAsync("/Pagamentos/Baixar", new FormUrlEncodedContent(new Dictionary<string,string> { ["Inicio"] = "2026-09-01", ["Fim"] = "2026-09-30", ["DemandaIds"] = "2" }));
             Check(forbidden.StatusCode == System.Net.HttpStatusCode.BadRequest, "Baixa exige token antifalsificação");
         }

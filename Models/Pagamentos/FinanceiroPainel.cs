@@ -8,17 +8,15 @@ public class FinanceiroPainel
     public int Demandas { get; set; }
     public int DemandasRecebidas => Recebimentos.Where(p => p.DemandaId.HasValue).Select(p => p.DemandaId).Distinct().Count();
     public decimal Recebido => Recebimentos.Sum(p => p.ValorPago);
-    public double Segundos => Meses.Sum(m => m.Segundos);
+    public double Segundos { get; set; }
     public decimal? Saldo { get; set; }
     public decimal TotalRecebidoGeral { get; set; }
 }
 public class FinanceiroMes
 {
     public DateTime Mes { get; set; }
-    public int Demandas { get; set; }
     public int DemandasRecebidas { get; set; }
-    public double Segundos { get; set; }
-    public decimal? Estimado { get; set; }
+    public int QuantidadeBaixas { get; set; }
     public decimal Recebido { get; set; }
-    public decimal? Saldo { get; set; }
+    public string Situacao => QuantidadeBaixas > 0 ? "Com baixa" : "Sem baixa";
 }
