@@ -30,7 +30,9 @@ public class PainelServico(IDemandasRepositorio demandas, IApontamentosRepositor
         painel.SegundosHoje = Recortar(apontamentos, AgoraLocal.Date, AgoraLocal.Date).Sum(l => l.Segundos);
         painel.SegundosMes = Recortar(apontamentos, new(AgoraLocal.Year, AgoraLocal.Month, 1), AgoraLocal.Date).Sum(l => l.Segundos);
         painel.SegundosTotais = apontamentos.Sum(a => ((a.Fim ?? DateTime.UtcNow) - a.Inicio).TotalSeconds);
-        painel.SaldoGeral = painel.ValorHora.HasValue ? (decimal)painel.SegundosTotais / 3600m * painel.ValorHora.Value - pagamentos.Sum(p => p.ValorPago) : null;
+        // O dashboard soma os mesmos saldos por demanda usados na baixa, já arredondados.
+        // Pagamentos a maior não reduzem pendências de outras demandas.
+        painel.SaldoGeral = painel.ValorHora.HasValue ? todasLinhas.Sum(l => l.Saldo ?? 0) : null;
         painel.DemandasPagamento = SituacaoFinanceira.Resumir(painel);
         return painel;
     }

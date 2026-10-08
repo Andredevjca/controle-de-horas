@@ -94,6 +94,24 @@ var centavos = await painel.PainelAsync(7, Filter());
 registros.Add(new() { DemandaId = 1, PeriodoInicio = inicio, PeriodoFim = fim, ValorPago = 0.01m });
 centavos = await painel.PainelAsync(7, Filter());
 Check(centavos.Pago == 0.01m && centavos.Saldo == 0.02m, "Rateio preserva centavos");
+// Regressão: quatro demandas de R$ 0,006 quitadas por R$ 0,01 cada.
+var horasOriginais = horas.ToList();
+horas.Clear(); registros.Clear(); tarifa = 18;
+for (var id = 1; id <= 4; id++)
+{
+    horas.Add(new() { DemandaId = id, Titulo = "Arredondamento " + id, Inicio = Horario.Utc(inicio.AddHours(id)), Fim = Horario.Utc(inicio.AddHours(id).AddSeconds(1.2)) });
+    registros.Add(new() { Id = id, DemandaId = id, PeriodoInicio = inicio, PeriodoFim = fim, ValorPago = 0.01m });
+}
+var quitado = await painel.PainelAsync(7, Filter());
+Check(Math.Round((decimal)quitado.SegundosTotais / 3600m * tarifa.Value - registros.Sum(p => p.ValorPago), 2) == -0.02m, "Reproduz diferença de dois centavos do cálculo antigo");
+Check(quitado.SaldoGeral == 0 && quitado.Saldo == 0, "Dashboard zerado quando todas as demandas estão pagas");
+horas.Add(new() { DemandaId = 5, Titulo = "Pendente", Inicio = Horario.Utc(inicio.AddHours(5)), Fim = Horario.Utc(inicio.AddHours(5).AddSeconds(1.2)) });
+registros[0].ValorPago = 1;
+var pendenteGeral = await painel.PainelAsync(7, new() { Inicio = fim.AddDays(1), Fim = fim.AddDays(2) });
+Check(pendenteGeral.SaldoGeral == 0.01m && pendenteGeral.Saldo == 0, "Saldo geral preserva pendência fora do filtro e não abate crédito de outra demanda");
+tarifa = null;
+Check((await painel.PainelAsync(7, Filter())).SaldoGeral == null, "Saldo geral continua indefinido sem tarifa");
+horas.Clear(); horas.AddRange(horasOriginais);
 tarifa = 100;
 registros.Clear();
 registros.Add(new() { Id = 1, DemandaId = 1, DemandaNome = "Demanda A", PeriodoInicio = inicio, PeriodoFim = fim, ValorPago = 200, DataPagamento = fim.AddDays(1) });
